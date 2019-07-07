@@ -1,9 +1,12 @@
 import pyaudio
 import wave
+from threading import Thread
 
 
 class Audio:
-    def __init__(self):
+    def __init__(self, audio_period):
+        self.audio_period = audio_period
+
         self.chunk = 1024
         self.sample_format = pyaudio.paInt16
         self.channels = 2
@@ -13,6 +16,11 @@ class Audio:
         self.p = ''
         self.stream = ''
         self.frames_list = []
+
+    def handle_audio(self):
+        while True:
+            self.init_stream()
+            ###############################################################################
 
     def init_stream(self):
         self.p = pyaudio.PyAudio()
