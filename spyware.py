@@ -23,6 +23,8 @@ class Spyware:
             reader = input_file.reader()
             self.user_info = json.loads(reader)
 
+        self.audio_period = self.user_info.frequency - 2
+
     def start(self):
         user_path = os.path.expanduser('~\\documents')
         logger = Logger()
