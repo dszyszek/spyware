@@ -14,15 +14,19 @@ class Visual:
         self.user_path = user_path
         self.screenshot_state = True
         self.frequency = frequency
+        self.counter = 1
 
     def make_pdf(self):
         listed_dir = os.listdir(normalize_path_name(self.user_path, 'images_record'))
-        images_with_location = [normalize_path_name(self.user_path, 'images_record', a) for a in listed_dir]
+        images_with_location = [normalize_path_name(self.user_path, 'images_record', a) for a in listed_dir][:-1]
 
-        with open(normalize_path_name(self.user_path, 'pdf_record', 'ready.pdf'), 'wb') as output_pdf:
-            pdf_bytes = img2pdf.convert(images_with_location)
+        with open(normalize_path_name(self.user_path, 'pdf_record', f'ready_{self.counter}.pdf'), 'wb') as output_pdf:
+            if images_with_location:
+                pdf_bytes = img2pdf.convert(images_with_location)
 
-            output_pdf.write(pdf_bytes)
+                output_pdf.write(pdf_bytes)
+
+                self.counter += 1
 
         for x in images_with_location:
             try:
