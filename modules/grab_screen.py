@@ -3,6 +3,7 @@ import img2pdf
 from mss import mss
 from time import sleep
 import pyscreenshot as ImageGrab
+from PIL import Image
 
 from modules.normalize_path import normalize_path_name
 
@@ -43,6 +44,20 @@ class Visual:
 
             im = ImageGrab.grab()
             im.save(normalize_path_name(self.user_path, 'images_record', f'image{counter}.png'))
+
+    def remove_alpha_channel(self):
+        images_dir = normalize_path_name(self.user_path, 'images_record')
+
+        for root, subfolders, files in os.walk(images_dir):
+            for file in files:
+                try:
+                    image = Image.open(os.path.join(images_dir, root, file))
+                    if image.mode == 'RGBA':
+                        bg = Image.new('RGB', image.size, (255, 255, 255))
+                        bg.paste(image, (0, 0), image)
+                        bg.save(os.path.join(images_dir, root, file), "PNG")
+                except:
+                    pass
 
 
 if __name__ == '__main__':
