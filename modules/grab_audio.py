@@ -9,25 +9,18 @@ from normalize_path import normalize_path_name
 
 
 class Audio:
-    def __init__(self, audio_length):
-        self.audio_length = audio_length
-
+    def __init__(self, audio_length, user_path):
         self.chunk = 1024
         self.sample_format = pyaudio.paInt16
         self.channels = 2
         self.samples_per_second = 44100
-        self.seconds = 5
+        self.seconds = audio_length
         self.filename = "audio_record"
         self.counter = 1
-        self.user_path = normalize_path_name(os.path.expanduser('~'), 'documents')
+        self.user_path = user_path
 
     def handle_audio(self):
-        if not os.path.isdir(normalize_path_name(self.user_path, 'audio_record')):
-            os.mkdir(normalize_path_name(self.user_path, 'audio_record'))
-
-        normalized_dir = normalize_path_name(self.user_path, 'audio_record')
-
-        while len(os.listdir(normalized_dir))*self.seconds <= self.audio_length:
+        while True:
             filename = self.filename + str(self.counter)
             self.record(filename)
 
@@ -52,9 +45,8 @@ class Audio:
         stream.close()
         p.terminate()
 
-
         normalized_audio_dir = normalize_path_name(self.user_path, 'audio_record')
-        path =  normalize_path_name(normalized_audio_dir, f'{random_number}_{name}.wav')
+        path =  normalize_path_name(normalized_audio_dir, f'{name}_{random_number}.wav')
 
         wf = wave.open(path, 'wb')
         wf.setnchannels(self.channels)
@@ -70,6 +62,7 @@ class Audio:
             random_number += str(randint(0, 20))
         return random_number
 
+
 if __name__ == '__main__':
-    aud = Audio(170)
+    aud = Audio(30)
     aud.handle_audio()

