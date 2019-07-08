@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
 
-def send_mail(email, password, message_body, subject, file=None):
+def send_mail(email, password, message_body, subject, files=[]):
     msg = MIMEMultipart()
     msg['Subject'] = subject
     msg['From'] = email
@@ -13,15 +13,16 @@ def send_mail(email, password, message_body, subject, file=None):
 
     msg.attach(MIMEText(message_body, 'plain'))
 
-    if file:
-        with open(file, "rb") as fil:
-            part = MIMEApplication(
-                    fil.read(),
-                    Name=os.path.basename(file)
-                )
-            # After the file is closed
-            part['Content-Disposition'] = 'attachment; filename="%s"' % os.path.basename(file)
-            msg.attach(part)
+    if files:
+        for f in files:
+            with open(f, "rb") as fil:
+                part = MIMEApplication(
+                        fil.read(),
+                        Name=os.path.basename(f)
+                    )
+                # After the file is closed
+                part['Content-Disposition'] = 'attachment; filename="%s"' % os.path.basename(f)
+                msg.attach(part)
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
