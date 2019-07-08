@@ -4,7 +4,7 @@ from mss import mss
 from time import sleep
 import pyscreenshot as ImageGrab
 
-from normalize_path import normalize_path_name
+from modules.normalize_path import normalize_path_name
 
 
 class Visual:
@@ -35,7 +35,7 @@ class Visual:
 
         images_record_dir_list = os.listdir(normalize_path_name(self.user_path, 'images_record'))
 
-        while len(images_record_dir_list)*self.screenshot_period <= self.frequency:
+        while len(images_record_dir_list)*self.screenshot_period <= int(self.frequency):
             images_record_dir_list = os.listdir(normalize_path_name(self.user_path, 'images_record'))
 
             counter += 1

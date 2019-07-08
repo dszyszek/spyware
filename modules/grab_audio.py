@@ -5,7 +5,7 @@ from time import sleep
 import os
 from random import randint
 
-from normalize_path import normalize_path_name
+from modules.normalize_path import normalize_path_name
 
 
 class Audio:
