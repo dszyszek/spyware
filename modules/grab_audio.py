@@ -22,7 +22,11 @@ class Audio:
     def handle_audio(self):
         while True:
             filename = self.filename + str(self.counter)
-            self.record(filename)
+
+            try:
+                self.record(filename)
+            except OSError:
+                print('\n____CANNOT RECORD FROM MIC____')
 
             self.counter += 1
 
